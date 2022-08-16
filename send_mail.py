@@ -30,7 +30,8 @@ def send(to_emails=None, message=None):
         addr_from = log_mail  # Отправитель
         # Убираем из адресов получателей игнор список адресов и добавляем адрес администратора
         addr_to = [mail for mail in to_emails if mail not in LIST_EMAIL_IGNOR] + EMAIL_ADMIN
-        addr_to = ['7034@balancedv.ru'] #TODO Удалить после тестов
+        #print(f'Correct list email: {addr_to}') # TODO Удалить после тестов
+        #addr_to = ['7034@balancedv.ru'] #TODO Удалить после тестов
 
         password = psw_mail  # Пароль
 
@@ -85,7 +86,7 @@ def mesNewPay(dict_pay=None):
                 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&ensp;&nbsp;
                 <br>
     
-                <a href="https://cp.abcp.ru/?page=orders&id_order={dict_pay['orderId']}">Перейти к заказазу: {dict_pay['orderId']}</a>
+                <a href="https://cp.abcp.ru/?page=orders&id_order={dict_pay['orderId']}">Перейти к заказу: {dict_pay['orderId']}</a>
                 &emsp;
                 <b></b>
             </p>
