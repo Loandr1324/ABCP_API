@@ -9,7 +9,7 @@ import logging
 import time
 from datetime import datetime, timedelta
 
-logging.basicConfig(filename="set_client.log", level=logging.INFO)
+logging.basicConfig(filename="abcp_api.log", level=logging.INFO)
 
 
 def req_get_abcp(urlParams):
@@ -169,7 +169,7 @@ def create_dict_new_pay(js):
                 logging.info(f"{datetime.utcnow()} - Create list email mangers office {client['offices']}")
                 email_list = chek_dict_mng(cl_office)
 
-                #Отправка информации на почту сотрудников офиса
+                # Отправка информации на почту сотрудников офиса
                 logging.info(f"{datetime.utcnow()} - Send email mangers office {email_list}")
 
                 # Подготавливаем текст письма
@@ -179,7 +179,9 @@ def create_dict_new_pay(js):
 
                 #Добавление новой оплаты в глобальный список оплат
                 config.CLOBAL_PAYMENTS[id] = user_pay[id]
-    print(config.CLOBAL_PAYMENTS) #TODO Удалить после тестов
+        else:
+            logging.info(f"{datetime.utcnow()} - No new payments")
+    #print(config.CLOBAL_PAYMENTS) #TODO Удалить после тестов
     return
 
 def chek_dict_mng(office):
@@ -230,7 +232,7 @@ def pauseWorkTime():
         pause_sec = config.sleep_non_work
     else:
         logging.info(f"{datetime.utcnow()} - UTC hour = {hour_UTC}. Pause 5 min. Working hours from 23 to 9")
-        pause_sec = config.slepp_work
+        pause_sec = config.sleep_work
     return pause_sec
 
 def main():
@@ -241,7 +243,7 @@ def main():
 
         # Подставляем профиль если полученный массив не пустой
         if len(js_user_id) > 0:
-            print(js_user_id) # TODO Удалить после тестов
+            #print(js_user_id) # TODO Удалить после тестов
             set_profile_clients(js_user_id)
 
         time.sleep(5)
@@ -252,7 +254,7 @@ def main():
 
         # Проверяем новые оплаты и отправляем письма
         if len(js_payments) > 0:
-            print(js_payments) # TODO Удалить после тестов
+            #print(js_payments) # TODO Удалить после тестов
             create_dict_new_pay(js_payments)
 
 
@@ -269,28 +271,7 @@ def main1():
         print(js_payments)
         create_dict_new_pay(js_payments)
 
-def main2():
-    send_mail.send(to_emails = ['7034@balancedv.ru', 'abcdf_2021@mail.ru'], message='Тест')  # TODO Удалить после тестов
-def main3():
-    js = [{
-        'userId': '8714642', 'marketType': '1', 'business': None, 'email': 'dmitrij.nik.artemenko.82@mail.ru', 'name': 'Дмитрий', 'secondName': '53042', 'surname': 'Артеменко', 'birthDate': None, 'regionId': '0', 'managerComment': '', 'userCode': '8714642', 'city': '', 'phone': '', 'mobile': '79990825771', 'memberOfClub': None, 'excludeCart': '0', 'icq': '', 'skype': '', 'state': '1', 'registrationDate': '2022-08-05 07:28:46', 'updateTime': '2022-08-05 07:30:04', 'organizationName': 'Артеменко Дмитрий 53042', 'organizationForm': '', 'organizationOfficialName': '', 'inn': '', 'kpp': '', 'ogrn': '', 'okpo': '', 'organizationOfficialAddress': '', 'bankName': '', 'bik': '', 'correspondentAccount': '', 'organizationAccount': '', 'customerStatus': None, 'profileId': '7072690', 'locale': 'ru_RU', 'comment': '', 'employeeId': None, 'clientServiceEmployeeId': None, 'clientServiceEmployee2Id': None, 'clientServiceEmployee3Id': None, 'clientServiceEmployee4Id': None, 'balance': '0.00', 'inStopList': '0', 'creditLimit': '0.00', 'payDelay': '0', 'overdueSaldo': None, 'stopListDateIn': None, 'offices': ['35884'], 'employeeName': '', 'deliveryAddress': None, 'deliveryAddressZones': [], 'baskets': None, 'businessName': None
-        }, {
-        'userId': '8715650', 'marketType': '1', 'business': None, 'email': 'kogaev09@gmail.com', 'name': 'Сергей', 'secondName': '', 'surname': 'Кожаев', 'birthDate': None, 'regionId': '0', 'managerComment': None, 'userCode': '8715650', 'city': '', 'phone': '', 'mobile': '79142168586', 'memberOfClub': None, 'excludeCart': None, 'icq': '', 'skype': '', 'state': '1', 'registrationDate': '2022-08-05 11:01:59', 'updateTime': '2022-08-05 15:50:05', 'organizationName': 'Кожаев Сергей', 'organizationForm': '', 'organizationOfficialName': '', 'inn': '', 'kpp': '', 'ogrn': '', 'okpo': '', 'organizationOfficialAddress': '', 'bankName': '', 'bik': '', 'correspondentAccount': '', 'organizationAccount': '', 'customerStatus': None, 'profileId': '7072696', 'locale': 'ru_RU', 'comment': '', 'employeeId': None, 'clientServiceEmployeeId': None, 'clientServiceEmployee2Id': None, 'clientServiceEmployee3Id': None, 'clientServiceEmployee4Id': None, 'balance': None, 'inStopList': None, 'creditLimit': None, 'payDelay': None, 'overdueSaldo': None, 'stopListDateIn': None, 'offices': ['35883'], 'employeeName': '', 'deliveryAddress': None, 'deliveryAddressZones': [], 'baskets': None, 'businessName': None
-        }, {
-        'userId': '8716364', 'marketType': '1', 'business': None, 'email': 'taniyridanova@bk.ru', 'name': 'Татьяна', 'secondName': '', 'surname': 'Морозова', 'birthDate': None, 'regionId': '0', 'managerComment': None, 'userCode': '8716364', 'city': '', 'phone': '', 'mobile': '79144280090', 'memberOfClub': None, 'excludeCart': None, 'icq': '', 'skype': '', 'state': '1', 'registrationDate': '2022-08-05 12:57:52', 'updateTime': '2022-08-05 15:50:06', 'organizationName': 'Морозова Татьяна', 'organizationForm': '', 'organizationOfficialName': '', 'inn': '', 'kpp': '', 'ogrn': '', 'okpo': '', 'organizationOfficialAddress': '', 'bankName': '', 'bik': '', 'correspondentAccount': '', 'organizationAccount': '', 'customerStatus': None, 'profileId': '7072698', 'locale': 'ru_RU', 'comment': '', 'employeeId': None, 'clientServiceEmployeeId': None, 'clientServiceEmployee2Id': None, 'clientServiceEmployee3Id': None, 'clientServiceEmployee4Id': None, 'balance': None, 'inStopList': None, 'creditLimit': None, 'payDelay': None, 'overdueSaldo': None, 'stopListDateIn': None, 'offices': ['35885'], 'employeeName': '', 'deliveryAddress': None, 'deliveryAddressZones': [], 'baskets': None, 'businessName': None
-        }, {
-        'userId': '8716408', 'marketType': '1', 'business': None, 'email': 'Dunskiy_sasha@mail.ru', 'name': 'Александр', 'secondName': '', 'surname': 'Дунский', 'birthDate': None, 'regionId': '0', 'managerComment': None, 'userCode': '8716408', 'city': '', 'phone': '', 'mobile': '79294073438', 'memberOfClub': None, 'excludeCart': None, 'icq': '', 'skype': '', 'state': '1', 'registrationDate': '2022-08-05 13:05:05', 'updateTime': '2022-08-05 15:50:07', 'organizationName': 'Дунский Александр', 'organizationForm': '', 'organizationOfficialName': '', 'inn': '', 'kpp': '', 'ogrn': '', 'okpo': '', 'organizationOfficialAddress': '', 'bankName': '', 'bik': '', 'correspondentAccount': '', 'organizationAccount': '', 'customerStatus': None, 'profileId': '7072698', 'locale': 'ru_RU', 'comment': '', 'employeeId': None, 'clientServiceEmployeeId': None, 'clientServiceEmployee2Id': None, 'clientServiceEmployee3Id': None, 'clientServiceEmployee4Id': None, 'balance': None, 'inStopList': None, 'creditLimit': None, 'payDelay': None, 'overdueSaldo': None, 'stopListDateIn': None, 'offices': ['35884'], 'employeeName': '', 'deliveryAddress': None, 'deliveryAddressZones': [], 'baskets': None, 'businessName': None
-        }, {
-        'userId': '8718263', 'marketType': '1', 'business': None, 'email': 'nesinmaksim@mail.ru', 'name': 'максим', 'secondName': '', 'surname': '', 'birthDate': None, 'regionId': '0', 'managerComment': None, 'userCode': '8718263', 'city': '', 'phone': '', 'mobile': '79141833785', 'memberOfClub': None, 'excludeCart': None, 'icq': '', 'skype': '', 'state': '1', 'registrationDate': '2022-08-06 04:51:33', 'updateTime': '2022-08-06 05:14:18', 'organizationName': 'максим', 'organizationForm': '', 'organizationOfficialName': '', 'inn': '', 'kpp': '', 'ogrn': '', 'okpo': '', 'organizationOfficialAddress': '', 'bankName': '', 'bik': '', 'correspondentAccount': '', 'organizationAccount': '', 'customerStatus': None, 'profileId': '7072696', 'locale': 'ru_RU', 'comment': '', 'employeeId': None, 'clientServiceEmployeeId': None, 'clientServiceEmployee2Id': None, 'clientServiceEmployee3Id': None, 'clientServiceEmployee4Id': None, 'balance': '0.00', 'inStopList': '0', 'creditLimit': '0.00', 'payDelay': '0', 'overdueSaldo': None, 'stopListDateIn': None, 'offices': ['35883'], 'employeeName': '', 'deliveryAddress': None, 'deliveryAddressZones': [], 'baskets': None, 'businessName': None
-        }, {
-        'userId': '8718402', 'marketType': '1', 'business': None, 'email': 'Jein-dean@mail.ru', 'name': 'Евгения', 'secondName': '', 'surname': 'Ушакова', 'birthDate': None, 'regionId': '0', 'managerComment': None, 'userCode': '8718402', 'city': '', 'phone': '', 'mobile': '79098285040', 'memberOfClub': None, 'excludeCart': None, 'icq': '', 'skype': '', 'state': '1', 'registrationDate': '2022-08-06 07:35:14', 'updateTime': '2022-08-06 07:45:40', 'organizationName': 'Ушакова Евгения', 'organizationForm': '', 'organizationOfficialName': '', 'inn': '', 'kpp': '', 'ogrn': '', 'okpo': '', 'organizationOfficialAddress': '', 'bankName': '', 'bik': '', 'correspondentAccount': '', 'organizationAccount': '', 'customerStatus': None, 'profileId': '6922524', 'locale': 'ru_RU', 'comment': '', 'employeeId': None, 'clientServiceEmployeeId': None, 'clientServiceEmployee2Id': None, 'clientServiceEmployee3Id': None, 'clientServiceEmployee4Id': None, 'balance': None, 'inStopList': None, 'creditLimit': None, 'payDelay': None, 'overdueSaldo': None, 'stopListDateIn': None, 'offices': ['35883'], 'employeeName': '', 'deliveryAddress': None, 'deliveryAddressZones': [], 'baskets': None, 'businessName': None
-    }]
-    set_profile_clients(js)
-
-
 
 if __name__ == '__main__':
     main()
     #main1()
-    #main2()
-    #main3()
