@@ -149,9 +149,9 @@ def create_dict_new_pay(js):
 
             if len(req_param_user) > 0:
                 client = req_get_abcp(req_param_user)[0]
+
                 if len(client['offices']) == 1:
-                    cl_office = client['offices'][0]
-                    logging.info(f"{datetime.utcnow()} - Client: {user_pay[id]['clientId']} have office: {cl_office}")
+                    logging.info(f"{datetime.utcnow()} - Client: {user_pay[id]['clientId']} have office: {client['offices'][0]}")
                 else:
                     logging.error(
                         f" {datetime.utcnow()} - "
@@ -159,11 +159,11 @@ def create_dict_new_pay(js):
                         f"It is not possible to send email."
                     )
 
-                user_pay[id]['office'] = cl_office
+                user_pay[id]['office'] = client['offices'][0]
 
                 # Получение списка email сотрудников по номеру офиса
                 logging.info(f"{datetime.utcnow()} - Create list email mangers office {client['offices']}")
-                email_list = chek_dict_mng(cl_office)
+                email_list = chek_dict_mng(client['offices'][0])
 
                 # Отправка информации на почту сотрудников офиса
                 logging.info(f"{datetime.utcnow()} - Send email mangers office {email_list}")
