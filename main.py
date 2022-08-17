@@ -87,12 +87,10 @@ def set_profile_clients(js):
                     logging.info(f"{datetime.utcnow()} - "
                                  f"Client {req_set_user_profile['userId']} successfully installed profile {req_set_user_profile['profileId']}"
                                  )
-                    return
                 else:
                     logging.error(f"{datetime.utcnow()} - "
                                   f"Client {item['userId']} failed to install profile {item['profileId']}"
                                   )
-                    return
             else:
                 # Логируем ошибку, в случае количества офисов больше одного
                 logging.error(
@@ -101,9 +99,6 @@ def set_profile_clients(js):
                     f"It is not possible to automatically install a profile."
                     f"Requires manual installation."
                     )
-                return {}
-
-
 
         else:
             # Логируем, если у пользователя не нужно менять офис
@@ -111,6 +106,7 @@ def set_profile_clients(js):
                 f" {datetime.utcnow()} - "
                 f"Do not change. Client {item['userId']} the correct profile {item['profileId']}."
                 )
+    return
 
 def create_dict_new_pay(js):
     """
