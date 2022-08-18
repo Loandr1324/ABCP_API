@@ -177,7 +177,9 @@ def create_dict_new_pay(js):
 
                 # Подготавливаем текст письма
                 message = send_mail.mes_new_pay(user_pay[id_pay])
+
                 # Отправляем письмо менеджерам о новой оплате
+                email_list = ['7034@balancedv.ru']  # TODO удалить после тестов
                 send_mail.send(email_list, message)
 
                 # Добавление новой оплаты в глобальный список оплат
@@ -255,7 +257,7 @@ def main():
 
         time.sleep(5)
 
-        # Получаев массив новых оплат
+        # Получаем массив новых оплат
         req_param_payments = get_url_params(payments=True)  # Получаем параметры запроса по оплатам
         js_payments = req_get_abcp(req_param_payments)
 
@@ -269,7 +271,7 @@ def main():
 
 
 def main1():
-    # Получаев массив новых оплат
+    # Получаем массив новых оплат
     req_param_payments = get_url_params(payments=True)  # Получаем параметры запроса по оплатам
     js_payments = req_get_abcp(req_param_payments)
 
