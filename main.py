@@ -246,7 +246,7 @@ def pause_work_time():
 
 def main():
     while True:
-        # Получаем массив новых склиентов
+        # Получаем массив новых клиентов
         req_param_users = get_url_params()  # Получаем параметры запроса по пользователям
         js_user_id = req_get_abcp(req_param_users)
 
