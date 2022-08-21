@@ -69,6 +69,7 @@ def mes_new_pay(dict_pay=None):
     # Переводим дату с Московского на наше время
     date_pay = datetime.strptime(dict_pay['date'], '%Y-%m-%d %H:%M:%S')
     date_pay = date_pay + timedelta(hours=7)
+    amount = '{:,}'.format(int(dict_pay['amount'])).replace(',', ' ')
 
     text = {'Subject': f"Проведение online-оплаты от клиента {dict_pay['clientName']}"}
     if dict_pay is not None:
@@ -80,7 +81,7 @@ def mes_new_pay(dict_pay=None):
                 Проведена online - оплата<br>
                 Клиент: {dict_pay['clientName']}<br>
                 Дата и время: {date_pay}<br>
-                Сумма: {dict_pay['amount']},00 руб.<br>
+                Сумма: {amount},00 руб.<br>
                 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&ensp;&nbsp;
                 <br>
     
