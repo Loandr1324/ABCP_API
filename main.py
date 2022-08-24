@@ -169,7 +169,7 @@ def check_add_new_pay(js):
                 message = send_mail.mes_new_pay(item)
 
                 # Отправляем письмо менеджерам о новой оплате
-                email_list = ['7034@balancedv.ru']  # TODO удалить после тестов
+                # email_list = ['7034@balancedv.ru']  # TODO используем при тестах
                 send_mail.send(email_list, message)
 
                 # Добавление новой оплаты в базу данных
