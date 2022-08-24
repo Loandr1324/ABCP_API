@@ -3,6 +3,7 @@ import config
 import send_mail
 from get_params import get_url_params
 from post_params import post_url_params_setprofile
+import work_pstg
 import requests
 import logging
 import time
@@ -112,85 +113,73 @@ def set_profile_clients(js):
     return
 
 
-def create_dict_new_pay(js):
+def check_add_new_pay(js):
     """
-    Преобразуем список словарей в словарь с ключами по Id оплат с необходимыми данными для дальнейшей работы
+    Проверяем есть ли новые оплаты из полученного списка оплат.
 
     :param js: список словарей по новым оплатам из запроса на платформу ABCP
 
-    :return: dict{
-        id: {
-            'date':
-            'clientId':
-            'clientName':
-            'orderId':
-            'amount':
-            'status': 'new'
-        }}
+    :return:
     """
 
-    # Создаём словарь по оплатам из полученного js
-    user_pay = {}
+    # Проходим по каждому элементу со списком оплат
     for item in js:
-        # Составляем словарь из полученных по запросу оплат
-        user_pay[item['id']] = {
-            'date': item['dateTime'],
-            'clientId': item['customerId'],
-            'clientName': item['customerName'],
-            'orderId': item['orderId'],
-            'amount': item['amount'],
-            'status': 'new'
-        }
         id_pay = item['id']
 
-        # Если платежа нет в словаре CLOBAL_PAYMENTS,
-        # то отправляем письмо менеджерам офиса и добавляем платёж в словарь CLOBAL_PAYMENTS
-        if id_pay not in config.CLOBAL_PAYMENTS:
+        # Отправляем запрос в базу данных по платежу
+        res = work_pstg.action_db('check_pay', item['id'])
+
+        # Если платежа нет в базе данных платежей, значит он новый.
+        # Тогда отправляем письмо менеджерам офиса и добавляем платёж в базу данных
+        if res is None:
+            logging.error(f"{datetime.utcnow()} - Can't check payment. No command or invalid database query")
+
+        elif len(res) == 0:
             # Логируем информацию по новому платежу
-            logging.info(f"{datetime.utcnow()} - New pay: {id_pay} client Id: {user_pay[id_pay]['clientId']}")
+            logging.info(f"{datetime.utcnow()} - New pay: {id_pay} client Id: {item['customerId']}")
 
-            # Определяем офис клиента для дальнейшей отправки писем менеджерам этого офиса
-            req_param_user = get_url_params(user=user_pay[id_pay]['clientId'])
+            # Определяем офис клиента для дальнейшей отправки писем менеджерам этого офиса.
+            # TODO Перенести запросы по офису в базу данных
+            req_param_user = get_url_params(user=item['customerId'])
+            client = req_get_abcp(req_param_user)[0]
 
-            if len(req_param_user) > 0:
-                client = req_get_abcp(req_param_user)[0]
-
+            if len(client) > 0:
                 if len(client['offices']) == 1:
                     logging.info(f"{datetime.utcnow()} - "
-                                 f"Client: {user_pay[id_pay]['clientId']} have office: {client['offices'][0]}"
+                                 f"Client: {item['customerId']} have office: {client['offices'][0]}"
                                  )
+                    item['office'] = client['offices'][0] # Добавляем офис клиента в словарь с новой оплатой
                 else:
                     logging.error(
                         f" {datetime.utcnow()} - "
-                        f"Quantity client offices: {len(client['offices'])}."
+                        f"Quantity client offices: { len(client['offices']) }."
                         f"It is not possible to send email."
                     )
-
-                user_pay[id_pay]['office'] = client['offices'][0]
+                    return
 
                 # Получение списка email сотрудников по номеру офиса
-                logging.info(f"{datetime.utcnow()} - Create list email mangers office {client['offices']}")
-                email_list = chek_dict_mng(client['offices'][0])
+                logging.info(f"{datetime.utcnow()} - Create list email mangers office {item['office']}")
+                # TODO Перенести запрос по списку мэйлов менеджеров в базу данных
+                email_list = check_dict_mng(item['office'])
 
                 # Отправка информации на почту сотрудников офиса
                 logging.info(f"{datetime.utcnow()} - Send email mangers office {email_list}")
 
                 # Подготавливаем текст письма
-                message = send_mail.mes_new_pay(user_pay[id_pay])
+                message = send_mail.mes_new_pay(item)
 
                 # Отправляем письмо менеджерам о новой оплате
                 email_list = ['7034@balancedv.ru']  # TODO удалить после тестов
                 send_mail.send(email_list, message)
 
-                # Добавление новой оплаты в глобальный список оплат
-                config.CLOBAL_PAYMENTS[id_pay] = user_pay[id_pay]
+                # Добавление новой оплаты в базу данных
+                work_pstg.action_db('ins_pay', item)
         else:
             logging.info(f"{datetime.utcnow()} - No new payments")
-    # print(config.CLOBAL_PAYMENTS) #TODO Удалить после тестов
     return
 
 
-def chek_dict_mng(office):
+def check_dict_mng(office):
     """
     Проверяем есть ли в словаре LIST_EMAIL_MENAGER офис с адресами почты менеджеров.
     Если данных нет или они устарели, то перезаполняет словарь.
@@ -228,7 +217,7 @@ def update_dict_mng():
 
 def pause_work_time():
     """
-    Определяем количество сеунд паузы в зависимости от рабочего времени
+    Определяем количество секунд паузы в зависимости от рабочего времени
 
     :return: int -> Количество секунд
     """
@@ -264,7 +253,7 @@ def main():
         # Проверяем новые оплаты и отправляем письма
         if len(js_payments) > 0:
             # print(js_payments) # TODO Удалить после тестов
-            create_dict_new_pay(js_payments)
+            check_add_new_pay(js_payments)
 
         # Устанавливаем паузу согласно рабочему времени
         time.sleep(pause_work_time())
@@ -278,9 +267,15 @@ def main1():
     # Проверяем новые оплаты и отправляем письма
     if len(js_payments) > 0:
         print(js_payments)
-        create_dict_new_pay(js_payments)
+        check_add_new_pay(js_payments)
+
+
+def main2():
+    # work_pstg()
+    pass
 
 
 if __name__ == '__main__':
     main()
     # main1()
+    # main2()

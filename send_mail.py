@@ -13,7 +13,7 @@ def send(to_emails=None, message=None):
     Отправляем письмо
 
     :param to_emails: list or str список адресов
-    :param message: dict
+    :param message:
         {
         'Subject': str - Тема письма
         'email_content': str - Текст письма
@@ -67,17 +67,19 @@ def mes_new_pay(dict_pay=None):
     :return: str текст сообщения
     """
     # Переводим дату с Московского на наше время
-    date_pay = datetime.strptime(dict_pay['date'], '%Y-%m-%d в %H:%M:%S')
+    date_pay = datetime.strptime(dict_pay['dateTime'], '%Y-%m-%d %H:%M:%S')
     date_pay = date_pay + timedelta(hours=7)
+    date_pay = datetime.strftime(date_pay, '%Y-%m-%d в %H:%M:%S')
     amount = '{:,}'.format(int(dict_pay['amount'])).replace(',', ' ')
 
-    text = {'Subject': f"Проведение online-оплаты от клиента {dict_pay['clientName']}"}
     if dict_pay is not None:
-        text['email_content'] = f"""
+        text = {'Subject': f"Проведение online-оплаты от клиента {dict_pay['customerName']}",
+                'email_content': f"""
         <html>
           <head></head>
           <body>
-            <table align="center" cellpadding="0" cellspacing="0" width="710" style="font-family:'arial' , sans-serif;font-size:13px;margin:0">
+            <table align="center" cellpadding="0" cellspacing="0" width="710" style="font-family:'arial', 
+            sans-serif;font-size:13px;margin:0">
                 <tbody>
                     <tr>
                         <td style="border:20px solid #e3f8ff">
@@ -89,10 +91,13 @@ def mes_new_pay(dict_pay=None):
                         </td>
                             </tr>
                             <tr>
-                        <td style="border-bottom-color:#e3f8ff;border-bottom-style:solid;border-bottom-width:10px;padding:15px">
-                            <p style="margin:3px 0 3px 0"><b>Клиент:</b> {dict_pay['clientName']}</p>
+                        <td style="border-bottom-color:#e3f8ff;
+                        border-bottom-style:solid;
+                        border-bottom-width:10px;
+                        padding:15px">
+                            <p style="margin:3px 0 3px 0"><b>Клиент:</b> {dict_pay['customerName']}</p>
                             <p style="margin:3px 0 3px 0"><b>Дата и время:</b> {date_pay}</p>
-                            <p style="margin:3px 0 3px 0"><b>Сумма:</b> {amount}</p>
+                            <p style="margin:3px 0 3px 0"><b>Сумма:</b> {amount},00р.</p>
                             <p style="margin:3px 0 3px 0"><b>Тип платежа:</b> Онлайн оплата через сайт</p>
                             <p style="margin:3px 0 3px 0">
                                 <a href="https://cp.abcp.ru/?page=orders&id_order={dict_pay['orderId']}">
@@ -103,7 +108,9 @@ def mes_new_pay(dict_pay=None):
                             </tr>
                             <tr>
                         <td style="padding:15px">С Уважением, <br> 
-                            <a href="https://macardv.ru/" data-link-id="37" target="_blank" rel="noopener noreferrer">https://macardv.ru</a>
+                            <a href="https://macardv.ru/" data-link-id="37" target="_blank" rel="noopener noreferrer">
+                                https://macardv.ru
+                            </a>
                         </td>
                             </tr>
                                 </tbody>
@@ -114,7 +121,8 @@ def mes_new_pay(dict_pay=None):
             </table>
           </body>
         </html>
-        """
+        """}
     else:
-        text['email_content'] = "Ошибка!!!\nИнформации по оплатам нет. Обратитесь к администратору."
+        text = {'Subject': f"Ошибка при отправке письма. Пустая оплата",
+                'email_content': "Ошибка!!!\nИнформации по оплатам нет. Обратитесь к администратору."}
     return text
