@@ -19,21 +19,28 @@ def action_db(action=None, data=None):
     connection = False
     result = None
     try:
-        # Создаём тоннель по SSH
+        """# Создаём тоннель по SSH
         with SSHTunnelForwarder(
                 ('192.168.100.107', 22),
                 ssh_username=SSH_username,
                 ssh_password=SSH_password,
                 remote_bind_address=('192.168.100.107', 5432)
         ) as server:
-
+        
             # Подключаемся к Базе данных
             connection = psycopg2.connect(
-                # host=host, # TODO Раскомментировать после тестов
                 user=DB_user_name,
                 database=DB_NAME,
                 port=server.local_bind_port
-            )
+            )""" # TODO Раскомментировать при тестах
+
+    # Подключаемся к Базе данных TODO Закомментировать при тестах
+        with psycopg2.connect(
+                host=HOST,
+                user=DB_user_name,
+                database=DB_NAME,
+            ) as connection:
+
             connection.autocommit = True
             cursor = connection.cursor()
 
@@ -71,7 +78,6 @@ def action_db(action=None, data=None):
                 )
                 logging.info(f"Entry {dict_pay['id']} successfully added to payment table")
                 return
-
 
             if action == 'check_pay':
                 result = check_new_pay(data)
