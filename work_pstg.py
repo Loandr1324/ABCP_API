@@ -17,6 +17,7 @@ def action_db(action=None, data=None):
     :return: result
     """
     connection = False
+    result = None
     try:
         # Создаём тоннель по SSH
         with SSHTunnelForwarder(
@@ -71,7 +72,7 @@ def action_db(action=None, data=None):
                 logging.info(f"Entry {dict_pay['id']} successfully added to payment table")
                 return
 
-            result = None
+
             if action == 'check_pay':
                 result = check_new_pay(data)
             elif action == 'ins_pay':
