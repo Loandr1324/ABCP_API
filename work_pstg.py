@@ -1,5 +1,5 @@
 import psycopg2
-from config import HOST, DB_NAME, SSH_username, SSH_password, DB_user_name
+from config import HOST, DB_NAME, SSH_username, SSH_password, DB_user_name, DB_password
 import logging
 from sshtunnel import SSHTunnelForwarder # TODO Удалить после тестов
 
@@ -31,15 +31,17 @@ def action_db(action=None, data=None):
             connection = psycopg2.connect(
                 user=DB_user_name,
                 database=DB_NAME,
+                password=DB_password,
                 port=server.local_bind_port
             )""" # TODO Раскомментировать при тестах
 
-    # Подключаемся к Базе данных TODO Закомментировать при тестах
+        # Подключаемся к Базе данных TODO Закомментировать при тестах
         with psycopg2.connect(
-                host=HOST,
-                user=DB_user_name,
-                database=DB_NAME,
-            ) as connection:
+            host=HOST,
+            user=DB_user_name,
+            database=DB_NAME,
+            password=DB_password
+        ) as connection:
 
             connection.autocommit = True
             cursor = connection.cursor()
@@ -88,6 +90,5 @@ def action_db(action=None, data=None):
 
     finally:
         if connection:
-            server.close()
             connection.close()
     return result
