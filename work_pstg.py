@@ -68,7 +68,7 @@ def action_db(action=None, data=None):
                     f"'new'"
                     f");"
                 )
-                logging.info(f"Adding a new payment to the database {dict_pay['id']}")
+                logging.info(f"Entry {dict_pay['id']} successfully added to payment table")
                 return
 
             result = None
