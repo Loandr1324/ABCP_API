@@ -127,7 +127,7 @@ def check_add_new_pay(js):
         id_pay = item['id']
 
         # Отправляем запрос в базу данных по платежу
-        res = work_pstg.action_db('check_pay', item['id'])
+        res = work_pstg.check_new_pay(item['id'])
 
         # Если платежа нет в базе данных платежей, значит он новый.
         # Тогда отправляем письмо менеджерам офиса и добавляем платёж в базу данных
@@ -169,11 +169,11 @@ def check_add_new_pay(js):
                 message = send_mail.mes_new_pay(item)
 
                 # Отправляем письмо менеджерам о новой оплате
-                # email_list = ['7034@balancedv.ru']  # TODO используем при тестах
+                # email_list = []  # TODO используем при тестах
                 send_mail.send(email_list, message)
 
                 # Добавление новой оплаты в базу данных
-                work_pstg.action_db('ins_pay', item)
+                work_pstg.ins_db_new_pay(item)
         else:
             logging.info(f"{datetime.utcnow()} - No new payments")
     return

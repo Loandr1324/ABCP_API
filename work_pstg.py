@@ -1,94 +1,97 @@
 import psycopg2
-from config import HOST, DB_NAME, SSH_username, SSH_password, DB_user_name, DB_password
+from config import DATABASES
 import logging
 from sshtunnel import SSHTunnelForwarder # TODO Удалить после тестов
 
 
-def action_db(action=None, data=None):
+def action_db(query):
     """
-    Подключаемся к базе данных и выполняем действие согласно action с данными data.
+    Подключаемся к базе данных и выполняем запрос query.
 
-    action = 'ins_pay':
-
-    :param action: action = 'check_pay': проверяем есть ли в базе данных платёж.
-    :param data: при action = 'check_pay' передаём id платежа.
-    :param action: action = 'ins_pay': добавляем в базу данных новый платёж
-    :param data: при action = 'ins_pay' передаём словарь с данными платежа из ABCP
-    :return: result
+    :param query: str -> Запрос к базе данных на языке postgresql
+    :return: result -> Результат запроса, если он есть
     """
     connection = False
     result = None
     try:
-        """# Создаём тоннель по SSH
-        with SSHTunnelForwarder(
-                ('192.168.100.107', 22),
-                ssh_username=SSH_username,
-                ssh_password=SSH_password,
-                remote_bind_address=('192.168.100.107', 5432)
-        ) as server:
-        
-            # Подключаемся к Базе данных
-            connection = psycopg2.connect(
-                user=DB_user_name,
-                database=DB_NAME,
-                password=DB_password,
-                port=server.local_bind_port
-            )""" # TODO Раскомментировать при тестах
+        # Создаём тоннель по SSH
+        # with SSHTunnelForwarder(
+        #         ('192.168.100.107', 22),
+        #         ssh_username=DATABASES['SSH_username'],
+        #         ssh_password=DATABASES['SSH_password'],
+        #         remote_bind_address=('192.168.100.107', 5432)
+        # ) as server:
+        #
+        #     # Подключаемся к Базе данных
+        #     connection = psycopg2.connect(
+        #         user=DATABASES['DB_user_name'],
+        #         database=DATABASES['DB_NAME'],
+        #         password=DATABASES['DB_password'],
+        #         port=server.local_bind_port
+        #     )  # TODO Раскомментировать при тестах
 
         # Подключаемся к Базе данных TODO Закомментировать при тестах
         with psycopg2.connect(
-            host=HOST,
-            user=DB_user_name,
-            database=DB_NAME,
-            password=DB_password
+                host=DATABASES['HOST'],
+                user=DATABASES['DB_user_name'],
+                database=DATABASES['DB_NAME'],
+                password=DATABASES['DB_password']
         ) as connection:
 
-            connection.autocommit = True
+            connection.autocommit = True # Задаём автоматическое подтверждение запроса
             cursor = connection.cursor()
 
-            def check_new_pay(id_pay):
-                """
-                Проверяем наличие оплаты в базе данных
+            # Отправляем запрос в БД
+            cursor.execute(query)
 
-                :param id_pay: int Id оплаты полученной от ABCP
-                :return: список tuple с результатом запроса
-                """
-                logging.info(f"Send a payment {id_pay} request to the database")
-                cursor.execute(f"SELECT id_pay FROM online_payments WHERE id_pay = {id_pay}")
+            # Возвращаем результат запроса, если он есть
+            try:
                 return cursor.fetchall()
-
-            def ins_db_new_apy(dict_pay):
-                """
-                Добавляем данные о новой оплату в базу данных online_payments
-
-                :param dict_pay: словарь с данными об оплате полученные из ABCP_API
-                :return:
-                """
-                logging.info(f"Adding a new payment to the database {dict_pay['id']}")
-
-                cursor.execute(
-                    f"INSERT INTO online_payments VALUES ("
-                    f"{int(dict_pay['id'])}, "
-                    f"'{dict_pay['dateTime']}', "
-                    f"{int(dict_pay['customerId'])}, "
-                    f"'{dict_pay['customerName']}', "
-                    f"{int(dict_pay['office'])}, "
-                    f"{int(dict_pay['orderId'])}, "
-                    f"{int(dict_pay['amount'])}, "
-                    f"'new'"
-                    f");"
-                )
-                logging.info(f"Entry {dict_pay['id']} successfully added to payment table")
+            except BaseException as _ex:
+                print(_ex)
                 return
 
-            if action == 'check_pay':
-                result = check_new_pay(data)
-            elif action == 'ins_pay':
-                ins_db_new_apy(data)
     except Exception as _ex:
         logging.error(f"Произошла ошибка при подключении к базе данных {_ex}") # Заменить print на logging
 
     finally:
         if connection:
             connection.close()
+
+
+def check_new_pay(id_pay):
+    """
+    Проверяем наличие оплаты в базе данных
+
+    :param id_pay: int Id оплаты полученной от ABCP
+    :return: список tuple с результатом запроса
+    """
+    logging.info(f"Send a payment {id_pay} request to the database")
+    query_bd = f"SELECT id_pay FROM online_payments WHERE id_pay = {id_pay}"
+    result = action_db(query_bd)
     return result
+
+
+def ins_db_new_pay(dict_pay):
+    """
+    Добавляем данные о новой оплате в базу данных online_payments
+
+    :param dict_pay: словарь с данными об оплате полученные из ABCP_API
+    :return:
+    """
+    logging.info(f"Adding a new payment to the database {dict_pay['id']}")
+
+    query_bd = f"INSERT INTO online_payments VALUES (" \
+               f"{int(dict_pay['id'])}, " \
+               f"'{dict_pay['dateTime']}', " \
+               f"{int(dict_pay['customerId'])}, " \
+               f"'{dict_pay['customerName']}', " \
+               f"{int(dict_pay['office'])}, " \
+               f"{int(dict_pay['orderId'])}, " \
+               f"{int(dict_pay['amount'])}, " \
+               f"'new'" \
+               f");"
+    result = action_db(query_bd)
+    logging.info(f"Entry {dict_pay['id']} successfully added to payment table")
+    print(f"result: {result}")
+    return
