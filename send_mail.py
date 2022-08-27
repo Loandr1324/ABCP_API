@@ -30,7 +30,7 @@ def send(to_emails=None, message=None):
         # Убираем из адресов получателей игнор список адресов и добавляем адрес администратора
         addr_to = [mail for mail in to_emails if mail not in LIST_EMAIL_IGNOR] + EMAIL_ADMIN
         # print(f'Correct list email: {addr_to}') # TODO Удалить после тестов
-        # addr_to = ['7034@balancedv.ru'] #TODO Удалить после тестов
+        # addr_to = ['7034@balancedv.ru'] # TODO Удалить после тестов
 
         password = psw_mail  # Пароль
 
