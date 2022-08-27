@@ -7,7 +7,7 @@ import work_pstg
 import requests
 import logging
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 
 logging.basicConfig(filename="abcp_api.log", level=logging.INFO)
 
@@ -159,8 +159,7 @@ def check_add_new_pay(js):
 
                 # Получение списка email сотрудников по номеру офиса
                 logging.info(f"{datetime.utcnow()} - Create list email mangers office {item['office']}")
-                # TODO Перенести запрос по списку мэйлов менеджеров в базу данных
-                email_list = check_dict_mng(item['office'])
+                email_list = work_pstg.list_email_manager(item['office'])
 
                 # Отправка информации на почту сотрудников офиса
                 logging.info(f"{datetime.utcnow()} - Send email mangers office {email_list}")
@@ -176,42 +175,6 @@ def check_add_new_pay(js):
                 work_pstg.ins_db_new_pay(item)
         else:
             logging.info(f"{datetime.utcnow()} - No new payments")
-    return
-
-
-def check_dict_mng(office):
-    """
-    Проверяем есть ли в словаре LIST_EMAIL_MENAGER офис с адресами почты менеджеров.
-    Если данных нет или они устарели, то перезаполняет словарь.
-
-    :param office: str - Id офиса
-
-    :return: dict, где ключи это тип str Id офиса, а значения это тип list с адресами почты
-    """
-    if len(config.LIST_EMAIL_MENAGER) == 0:
-        update_dict_mng()
-    elif config.LIST_EMAIL_MENAGER['updateDate'] < datetime.utcnow() - timedelta(days=31):
-        update_dict_mng()
-    return config.LIST_EMAIL_MENAGER['email_offices'][office]
-
-
-def update_dict_mng():
-    """
-    Обновляем список email адресов сотрудников по офисам и заполняем ими глобальный словарь LIST_EMAIL_MENAGER
-    """
-    # Записываем дату обновления
-    config.LIST_EMAIL_MENAGER['updateDate'] = datetime.utcnow()
-
-    # Получаем массив сотрудников
-    req_param_mng = get_url_params(managers=True)
-    js_managers = req_get_abcp(req_param_mng)
-
-    # Записываем email адреса сотрудников по офисам
-    config.LIST_EMAIL_MENAGER['email_offices'] = dict.fromkeys(config.LIST_IdOffice_AV + config.LIST_IdOffice_SV, [])
-
-    for item in config.LIST_EMAIL_MENAGER['email_offices']:
-        list_emails = [i['email'] for i in js_managers if i['officeId'] == item]
-        config.LIST_EMAIL_MENAGER['email_offices'][item] = list_emails
     return
 
 
