@@ -95,3 +95,18 @@ def ins_db_new_pay(dict_pay):
     logging.info(f"Entry {dict_pay['id']} successfully added to payment table")
     print(f"result: {result}")
     return
+
+
+def list_email_manager(office):
+    """
+    Возвращает список мэйл адресов сотрудников офиса
+
+    :param office: int or str номер id офиса
+    :return: list мэйл адресов
+    """
+    import json
+    logging.info(f"Get a list of office email addresses {office}")
+    query_bd = f"SELECT email FROM managers WHERE office_id = {office}"
+    result = action_db(query_bd)
+    logging.info(f"Successfully list email addresses {result}")
+    return [i[0] for i in result]
