@@ -72,7 +72,7 @@ def set_profile_clients(js):
 
     for item in js:
         # Отрабатываем подстановку офиса только для клиентов с базовым профилем без платёжных систем
-        if item['profileId'] == config.BASE_PROFILE:
+        if item['profileId'] != config.BASE_PROFILE:
 
             # Отрабатываем подстановку профиля если у клиента только один офис
             if len(item['offices']) == 1:
@@ -85,12 +85,18 @@ def set_profile_clients(js):
                 # Выполняем POST запрос на подстановку офиса
                 req_set_user_profile = req_post_abcp(url_params)
 
+                # Заменяем профиль в полученных данных пользователя
+                item['profileId'] = url_params[1]['profileId']
+
                 # Логируем результаты выполнения POST запроса подстановки офиса
                 if len(req_set_user_profile) > 0:
                     logging.info(f"{datetime.utcnow()} - "
                                  f"Client {req_set_user_profile['userId']} successfully installed profile "
                                  f"{req_set_user_profile['profileId']}"
                                  )
+                    # Записываем клиента в БД
+                    work_pstg.ins_db_new_client(item)
+
                 else:
                     logging.error(f"{datetime.utcnow()} - "
                                   f"Client {item['userId']} failed to install profile {item['profileId']}"
@@ -161,10 +167,8 @@ def check_add_new_pay(js):
                 logging.info(f"{datetime.utcnow()} - Create list email mangers office {item['office']}")
                 email_list = work_pstg.list_email_manager(item['office'])
 
-                # Отправка информации на почту сотрудников офиса
-                logging.info(f"{datetime.utcnow()} - Send email mangers office {email_list}")
-
-                # Подготавливаем текст письма
+                # Отправка информации на почту сотрудников офиса.
+                # Подготавливаем текст письма.
                 message = send_mail.mes_new_pay(item)
 
                 # Отправляем письмо менеджерам о новой оплате
@@ -234,8 +238,15 @@ def main1():
 
 
 def main2():
-    # work_pstg()
-    pass
+    # Получаем массив новых клиентов
+    req_param_users = get_url_params()  # Получаем параметры запроса по пользователям
+    js_user_id = req_get_abcp(req_param_users)
+    for item in js_user_id:
+        print(item)
+
+    # Подставляем профиль если полученный массив не пустой
+    if len(js_user_id) > 0:
+        set_profile_clients(js_user_id)
 
 
 if __name__ == '__main__':

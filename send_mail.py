@@ -32,6 +32,7 @@ def send(to_emails=None, message=None):
         # print(f'Correct list email: {addr_to}') # TODO Удалить после тестов
         # addr_to = ['7034@balancedv.ru'] # TODO Удалить после тестов
 
+        logging.info(f"{datetime.utcnow()} - Send email mangers office {addr_to}")
         password = psw_mail  # Пароль
 
         msg = MIMEMultipart()  # Создаем сообщение
