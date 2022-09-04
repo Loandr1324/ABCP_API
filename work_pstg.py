@@ -92,8 +92,7 @@ def ins_db_new_pay(dict_pay):
                f"'new'" \
                f");"
     result = action_db(query_bd)
-    logging.info(f"Entry {dict_pay['id']} successfully added to payment table")
-    print(f"result: {result}")
+    logging.info(f"Entry {dict_pay['id']} successfully added to online_payments table")
     return
 
 
@@ -110,3 +109,32 @@ def list_email_manager(office):
     result = action_db(query_bd)
     logging.info(f"Successfully list email addresses {result}")
     return [i[0] for i in result]
+
+
+def ins_db_new_client(dict_cl):
+    """
+    Добавляем данные о новом клиенте в базу данных clients
+
+    :param dict_cl: словарь с данными о клиенте полученные из ABCP_API
+    :return:
+    """
+    logging.info(f"Adding a new client to the database {dict_cl['userId']}")
+
+    query_bd = f"INSERT INTO clients VALUES (" \
+               f"{int(dict_cl['userId'])}, " \
+               f"'{dict_cl['email']}', " \
+               f"'{dict_cl['name']}', " \
+               f"'{dict_cl['secondName']}', " \
+               f"'{dict_cl['surname']}', " \
+               f"'{dict_cl['city']}', " \
+               f"'{dict_cl['phone']}', " \
+               f"'{dict_cl['mobile']}', " \
+               f"'{dict_cl['registrationDate']}', " \
+               f"'{dict_cl['updateTime']}', " \
+               f"'{dict_cl['organizationName']}', " \
+               f"{int(dict_cl['profileId'])}, " \
+               f"{int(dict_cl['offices'][0])}" \
+               f");"
+    result = action_db(query_bd)
+    logging.info(f"Entry {dict_cl['userId']} successfully added to clients table")
+    return
