@@ -99,7 +99,9 @@ def mes_new_pay(dict_pay=None):
                             <p style="margin:3px 0 3px 0"><b>Клиент:</b> {dict_pay['customerName']}</p>
                             <p style="margin:3px 0 3px 0"><b>Дата и время:</b> {date_pay}</p>
                             <p style="margin:3px 0 3px 0"><b>Сумма:</b> {amount},00р.</p>
-                            <p style="margin:3px 0 3px 0"><b>Тип платежа:</b> Онлайн оплата через сайт</p>
+                            <p style="margin:3px 0 3px 0">
+                                <b>Тип платежа:</b> 
+                                Онлайн оплата через сайт {dict_pay['paymentMethodName']}</p>
                             <p style="margin:3px 0 3px 0">
                                 <a href="https://cp.abcp.ru/?page=orders&id_order={dict_pay['orderId']}">
                                     <b>Перейти к заказу:</b> {dict_pay['orderId']}
