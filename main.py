@@ -145,14 +145,14 @@ def check_add_new_pay(js):
             logging.info(f"{datetime.utcnow()} - New pay: {id_pay} client Id: {item['customerId']}")
 
             # Определяем офис клиента для дальнейшей отправки писем менеджерам этого офиса.
-            item['office'] = work_pstg.get_client_office(item['customerId'])
+            item['office'] = work_pstg.get_client_office(item['customerId'])[0]
 
-            if item['office'] is None or item['office'] == []:
+            if item['office'] is None or item['office'] == '':
                 logging.error(f"{datetime.utcnow()} - Can't check client_office. No command or invalid database query")
                 return
             else:
                 logging.info(f"{datetime.utcnow()} - "
-                             f"Client: {item['customerId']} have office: {item['office'][0]}"
+                             f"Client: {item['customerId']} have office: {item['office']}"
                              )
 
                 # Получение списка email сотрудников по номеру офиса
