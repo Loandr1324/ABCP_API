@@ -72,7 +72,7 @@ def set_profile_clients(js):
 
     for item in js:
         # Отрабатываем подстановку офиса только для клиентов с базовым профилем без платёжных систем
-        if item['profileId'] != config.BASE_PROFILE:
+        if item['profileId'] == config.BASE_PROFILE:
 
             # Отрабатываем подстановку профиля если у клиента только один офис
             if len(item['offices']) == 1:
@@ -145,23 +145,15 @@ def check_add_new_pay(js):
             logging.info(f"{datetime.utcnow()} - New pay: {id_pay} client Id: {item['customerId']}")
 
             # Определяем офис клиента для дальнейшей отправки писем менеджерам этого офиса.
-            # TODO Перенести запросы по офису в базу данных
-            req_param_user = get_url_params(user=item['customerId'])
-            client = req_get_abcp(req_param_user)[0]
+            item['office'] = work_pstg.get_client_office(item['customerId'])
 
-            if len(client) > 0:
-                if len(client['offices']) == 1:
-                    logging.info(f"{datetime.utcnow()} - "
-                                 f"Client: {item['customerId']} have office: {client['offices'][0]}"
-                                 )
-                    item['office'] = client['offices'][0] # Добавляем офис клиента в словарь с новой оплатой
-                else:
-                    logging.error(
-                        f" {datetime.utcnow()} - "
-                        f"Quantity client offices: { len(client['offices']) }."
-                        f"It is not possible to send email."
-                    )
-                    return
+            if item['office'] is None or item['office'] == []:
+                logging.error(f"{datetime.utcnow()} - Can't check client_office. No command or invalid database query")
+                return
+            else:
+                logging.info(f"{datetime.utcnow()} - "
+                             f"Client: {item['customerId']} have office: {item['office'][0]}"
+                             )
 
                 # Получение списка email сотрудников по номеру офиса
                 logging.info(f"{datetime.utcnow()} - Create list email mangers office {item['office']}")
