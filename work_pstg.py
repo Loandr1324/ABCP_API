@@ -138,3 +138,18 @@ def ins_db_new_client(dict_cl):
     result = action_db(query_bd)
     logging.info(f"Entry {dict_cl['userId']} successfully added to clients table")
     return
+
+
+def get_client_office(client_id):
+    """
+    Возвращает офис клиента
+
+    :param client_id: int -> id клиента
+    :return: list офис клиента
+    """
+    import json
+    logging.info(f"Get client office_id from database {client_id}")
+    query_bd = f"SELECT offices FROM clients WHERE client_id = {client_id}"
+    result = action_db(query_bd)
+    logging.info(f"Successfully client office_id: {result}")
+    return [i[0] for i in result]
