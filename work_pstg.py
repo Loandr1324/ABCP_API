@@ -89,10 +89,13 @@ def ins_db_new_pay(dict_pay):
                f"{int(dict_pay['office'])}, " \
                f"{int(dict_pay['orderId'])}, " \
                f"{int(dict_pay['amount'])}, " \
-               f"'new'" \
+               f"'new', " \
+               f"{int(dict_pay['paymentMethodId'])}, " \
+               f"'{dict_pay['paymentMethodName']}'" \
                f");"
     result = action_db(query_bd)
-    logging.info(f"Entry {dict_pay['id']} successfully added to online_payments table")
+    logging.info(f"Entry {dict_pay['id']} successfully added to online_payments table"
+                 f"{result}")
     return
 
 
