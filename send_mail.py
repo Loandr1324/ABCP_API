@@ -97,6 +97,7 @@ def mes_new_pay(dict_pay=None):
                         border-bottom-width:10px;
                         padding:15px">
                             <p style="margin:3px 0 3px 0"><b>Клиент:</b> {dict_pay['customerName']}</p>
+                            <p style="margin:3px 0 3px 0"><b>Эл. почта клиента:</b> {dict_pay['customerEmail']}</p>
                             <p style="margin:3px 0 3px 0"><b>Дата и время:</b> {date_pay}</p>
                             <p style="margin:3px 0 3px 0"><b>Сумма:</b> {amount},00р.</p>
                             <p style="margin:3px 0 3px 0">

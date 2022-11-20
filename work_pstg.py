@@ -106,7 +106,6 @@ def list_email_manager(office):
     :param office: int or str номер id офиса
     :return: list мэйл адресов
     """
-    import json
     logging.info(f"Get a list of office email addresses {office}")
     query_bd = f"SELECT email FROM managers WHERE office_id = {office}"
     result = action_db(query_bd)
@@ -152,7 +151,7 @@ def get_client_office(client_id):
     """
     import json
     logging.info(f"Get client office_id from database {client_id}")
-    query_bd = f"SELECT offices FROM clients WHERE client_id = {client_id}"
+    query_bd = f"SELECT offices, email FROM clients WHERE client_id = {client_id}"
     result = action_db(query_bd)
     logging.info(f"Successfully client office_id: {result}")
-    return [i[0] for i in result]
+    return [i for i in result]
